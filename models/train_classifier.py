@@ -81,13 +81,14 @@ def build_model():
             ('vect', CountVectorizer(tokenizer=tokenize)),
             ('tfidf', TfidfTransformer())
         ])),
-        ('moc', MultiOutputClassifier(RandomForestClassifier()))
+        ('clf', MultiOutputClassifier(RandomForestClassifier()))
     ])
 
+    print(pipeline.get_params())
     parameters = {
-        # 'features__text_pipeline__vect__ngram_range': ((1, 1), (1, 2)),
-        # 'clf__n_estimators': [50, 100, 200],
-        # 'clf__min_samples_split': [2, 3, 4]
+        'text_pipeline__vect__ngram_range': ((1, 1), (1, 2)),
+        'clf__estimator__n_estimators': [50, 100, 200],
+        'clf__estimator__min_samples_split': [2, 3, 4]
     }
 
     cv = GridSearchCV(pipeline, param_grid=parameters)
