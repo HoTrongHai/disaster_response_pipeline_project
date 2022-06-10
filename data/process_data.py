@@ -20,6 +20,9 @@ def _transform_category(df_category: pd.DataFrame):
     def _extract_label_values(series: pd.Series, label_name):
         return series.apply(lambda c: c.replace(f"{label_name}-", ""))
 
+    def _convert_greater_than_one(series: pd.Series):
+        return series.apply(lambda c: 1 if c > 1 else c)
+
     # Get label names and set new columns
     label_names = _extract_label_names(df_category_expanded.iloc[0])
     df_category_expanded.columns = label_names
@@ -27,6 +30,7 @@ def _transform_category(df_category: pd.DataFrame):
     # Convert label values of each series into numberic
     for label_name in label_names:
         df_category_expanded[label_name] = _extract_label_values(df_category_expanded[label_name], label_name).astype('int8')
+        df_category_expanded[label_name] = _convert_greater_than_one(df_category_expanded[label_name])
 
 
     return pd.concat([df_category.drop(labels=['categories'], axis=1), df_category_expanded], axis=1)
@@ -87,7 +91,7 @@ def save_data(df, database_filepath):
     :return: None
     """
     engine = create_engine(f'sqlite:///{database_filepath}')
-    df.to_sql("DisasterMessageCategory", engine, index=False)
+    df.to_sql("DisasterMessageCategory", engine, index=False, if_exists='replace')
 
 
 def main():
